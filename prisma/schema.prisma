@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// model Team {
+//   id         String        @id @default(auto()) @map("_id") @db.ObjectId
+//   channel_id String
+//   createdBy  String
+//   members    TeamMembers[]
+//   name       String
+//   slackId    String        @unique
+// }
+
+model User {
+  id          Int           @id @default(autoincrement())
+  user_id     String        @unique
+  anniversary String?
+  birthday    String?
+  private     Boolean?
+  Team        Team[]
+  TeamMembers TeamMembers[]
+}
+
+model Team {
+  id        Int           @id @default(autoincrement())
+  team_id   String        @unique
+  name      String
+  createdBy User          @relation(fields: [userId], references: [user_id])
+  userId    String
+  members   TeamMembers[]
+}
+
+model TeamMembers {
+  id     Int    @id @default(autoincrement())
+  Team   Team   @relation(fields: [teamId], references: [team_id])
+  teamId String
+  User   User   @relation(fields: [userId], references: [user_id])
+  userId String
+}
