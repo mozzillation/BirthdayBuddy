@@ -9,13 +9,13 @@
 		"strict": true,
 		"allowJs": true,
 		"sourceMap": true,
-		"rootDir": ".",
+		"rootDir": "app",
 		"outDir": "dist",
-		"baseUrl": "./",
+		"baseUrl": ".",
 		"paths": {
 			"@/*": ["./*"]
 		}
 	},
 	"exclude": ["node_modules"],
-	"include": ["./**/*"]
+	"include": ["app/**/*"]
 }

@@ -17,28 +17,33 @@ datasource db {
 // }
 
 model User {
-  id          Int           @id @default(autoincrement())
-  user_id     String        @unique
+  id          Int      @id @default(autoincrement())
+  user_id     String   @unique
   anniversary String?
   birthday    String?
-  private     Boolean?
-  Team        Team[]
-  TeamMembers TeamMembers[]
+  isPrivate   Boolean? @default(false)
+  ownerOf     Team[]
+  memberOf    Team[]   @relation("Membership")
+  isEnabled   Boolean  @default(false)
+  isAdmin     Boolean  @default(false)
 }
 
 model Team {
-  id        Int           @id @default(autoincrement())
-  team_id   String        @unique
+  id        Int    @id @default(autoincrement())
+  team_id   String @unique
   name      String
-  createdBy User          @relation(fields: [userId], references: [user_id])
-  userId    String
-  members   TeamMembers[]
+  createdBy User   @relation(fields: [user_id], references: [user_id])
+  user_id   String
+  members   User[] @relation("Membership")
 }
 
-model TeamMembers {
-  id     Int    @id @default(autoincrement())
-  Team   Team   @relation(fields: [teamId], references: [team_id])
-  teamId String
-  User   User   @relation(fields: [userId], references: [user_id])
-  userId String
-}
+// model TeamMembers {
+//   id               Int      @id @default(autoincrement())
+//   user             User?    @relation(fields: [user_id], references: [user_id])
+//   user_id          String?
+//   user_birthday    String?
+//   user_anniversary String?
+//   user_isPrivate   Boolean?
+//   team             Team?    @relation(fields: [team_id], references: [team_id])
+//   team_id          String?
+// }
