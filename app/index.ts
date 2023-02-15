@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma } from '@prisma/client'
 import app from './client/slack'
+import cronJobs from './jobs'
 import homeViewHandler from './views/home'
 
 app.use(async ({ next }) => {
@@ -13,5 +14,8 @@ const run = async () => {
 
 // Home View Events & Actions
 homeViewHandler()
+
+// Cron jobs
+cronJobs()
 
 run()

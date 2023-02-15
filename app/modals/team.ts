@@ -1,5 +1,7 @@
 import app from '../client/slack'
 import { getAllTeams, getTeam } from '../queries/team'
+import { PlainTextOption } from '@slack/bolt'
+import { minimalTimezoneSet } from '../utils/timezones'
 
 interface createTeamModalProps {
 	trigger_id: string
@@ -10,6 +12,17 @@ const createTeamModal = async ({
 	trigger_id,
 }: createTeamModalProps) => {
 	const alreadyCreatedTeams = await getAllTeams()
+
+	const formatTimezoneOptions: PlainTextOption[] =
+		minimalTimezoneSet.map(({ label, tzCode }, index) => {
+			return {
+				text: {
+					type: 'plain_text',
+					text: label,
+				},
+				value: tzCode,
+			}
+		})
 
 	await app.client.views.open({
 		trigger_id,
@@ -70,6 +83,42 @@ const createTeamModal = async ({
 						text: 'Set a channel',
 						emoji: true,
 					},
+				},
+				{
+					type: 'divider',
+				},
+				{
+					type: 'actions',
+					block_id: 'input-timezone',
+					elements: [
+						{
+							type: 'static_select',
+							placeholder: {
+								type: 'plain_text',
+								text: 'Select an item',
+								emoji: true,
+							},
+							initial_option: {
+								text: {
+									type: 'plain_text',
+									text: '(GMT+00:00) London',
+								},
+								value: 'Europe/London',
+							},
+							options: formatTimezoneOptions,
+							action_id: 'update-timezone-action',
+						},
+						{
+							type: 'timepicker',
+							initial_time: '08:00',
+							placeholder: {
+								type: 'plain_text',
+								text: 'Select time',
+								emoji: true,
+							},
+							action_id: 'update-time-action',
+						},
+					],
 				},
 			],
 		},

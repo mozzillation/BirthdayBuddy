@@ -103,8 +103,6 @@ const getTodayOccurrencies = async () => {
 		}
 	)
 
-	console.log(allAnniversaries)
-
 	return {
 		birthdays: todayBirthdays,
 		anniversaries: todayAnniversaries,

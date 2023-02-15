@@ -114,6 +114,16 @@ const updatePrivacyAction = () =>
 		await ack()
 	})
 
+const updateTimezoneAction = () =>
+	app.action('update-timezone-action', async ({ ack }) => {
+		await ack()
+	})
+
+const updateTimeAction = () =>
+	app.action('update-time-action', async ({ ack }) => {
+		await ack()
+	})
+
 const submitProfileAction = () => {
 	app.view('edit-profile-modal', async ({ ack, body, view }) => {
 		const birthday =
@@ -188,6 +198,15 @@ const submitCreateTeamAction = () => {
 		const team_id = view.state.values['input-channel']['team-channel']
 			.selected_conversation as string
 		const user_id = body.user.id as string
+
+		console.log(view.state.values)
+		const timezone = view.state.values['input-timezone'][
+			'update-timezone-action'
+		].selected_option?.value as string
+		const time = view.state.values['input-timezone'][
+			'update-time-action'
+		].selected_time as string
+
 		const { members = [] } = await app.client.conversations.members({
 			channel: team_id,
 		})
@@ -205,7 +224,14 @@ const submitCreateTeamAction = () => {
 			return
 		}
 
-		await addTeam({ name, team_id, user_id, members })
+		await addTeam({
+			name,
+			team_id,
+			user_id,
+			members,
+			time,
+			timezone,
+		})
 		await generateHome({ user_id })
 		await ack({ response_action: 'clear' })
 	})
@@ -411,7 +437,7 @@ const generateHome = async ({ user_id }: { user_id: string }) => {
 		anniversary && dayjs(anniversary).format('MMMM DD')
 
 	let daysToBirthday = () => {
-		if (!birthday) return
+		if (!birthday) return 0
 
 		const today = dayjs()
 
@@ -421,11 +447,18 @@ const generateHome = async ({ user_id }: { user_id: string }) => {
 		const thisYearBirthday = dayjs(birthday).year(thisYear)
 		const nextYearBirthday = dayjs(birthday).year(nextYear)
 
-		if (today.isSame(thisYearBirthday, 'day')) {
+		if (
+			today.format('YYYY-MM-DD') ===
+			thisYearBirthday.format('YYYY-MM-DD')
+		) {
 			return 0
 		} else {
 			if (today.isBefore(thisYearBirthday)) {
-				return thisYearBirthday.diff(today, 'day')
+				if (thisYearBirthday.diff(today, 'day', true) < 1) {
+					return 1
+				} else {
+					return thisYearBirthday.diff(today, 'day')
+				}
 			} else {
 				return nextYearBirthday.diff(today, 'day')
 			}
@@ -457,7 +490,9 @@ const generateHome = async ({ user_id }: { user_id: string }) => {
 								? `:birthday: You are celebrating your birthday on *${formatBirthday}* — ${
 										daysToBirthday() === 0
 											? `*It's today!* Happy birthday! :tada:`
-											: `it's still ${daysToBirthday()} days away.`
+											: `it's still ${daysToBirthday()} ${
+													daysToBirthday() > 1 ? `days` : `day`
+											  } away.`
 								  }`
 								: ":birthday: You haven't set your birthday yet."
 						} \n\n ${
@@ -563,6 +598,8 @@ const homeViewHandler = () => {
 	updateAnniversaryAction()
 	updateBirthdayAction()
 	updatePrivacyAction()
+	updateTimeAction()
+	updateTimezoneAction()
 
 	createTeamAction()
 	editTeamAction()

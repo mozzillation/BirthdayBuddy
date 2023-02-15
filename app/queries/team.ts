@@ -9,11 +9,15 @@ const addTeam = async ({
 	team_id,
 	user_id,
 	members,
+	time,
+	timezone,
 }: {
 	name: string
 	team_id: string
 	user_id: string
 	members: string[]
+	timezone: string
+	time: string
 }) => {
 	const filterMembers = await getMembers({ members })
 
@@ -38,6 +42,8 @@ const addTeam = async ({
 				user_id,
 			},
 		},
+		time,
+		timezone,
 		members: filterMembers.length ? connectOrCreateMembers : {},
 	}
 

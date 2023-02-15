@@ -12,6 +12,7 @@
 	},
 	"devDependencies": {
 		"@types/node": "^18.11.18",
+		"@types/node-cron": "^3.0.7",
 		"nodemon": "^2.0.20",
 		"prettier": "^2.8.3",
 		"prisma": "^4.9.0",
@@ -24,6 +25,8 @@
 		"@slack/bolt": "^3.12.2",
 		"dayjs": "^1.11.7",
 		"dotenv": "^16.0.3",
+		"node-cron": "^3.0.2",
+		"timezones-list": "^3.0.1",
 		"yaml": "^2.2.1"
 	}
 }

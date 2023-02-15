@@ -35,15 +35,6 @@ model Team {
   createdBy User   @relation(fields: [user_id], references: [user_id])
   user_id   String
   members   User[] @relation("Membership")
+  timezone  String @default("Europe/London")
+  time      String @default("08:00")
 }
-
-// model TeamMembers {
-//   id               Int      @id @default(autoincrement())
-//   user             User?    @relation(fields: [user_id], references: [user_id])
-//   user_id          String?
-//   user_birthday    String?
-//   user_anniversary String?
-//   user_isPrivate   Boolean?
-//   team             Team?    @relation(fields: [team_id], references: [team_id])
-//   team_id          String?
-// }
