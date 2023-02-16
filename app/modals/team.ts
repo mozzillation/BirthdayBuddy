@@ -64,7 +64,7 @@ const createTeamModal = async ({
 					},
 					label: {
 						type: 'plain_text',
-						text: 'Name',
+						text: 'Choose a name',
 						emoji: true,
 					},
 				},
@@ -86,6 +86,13 @@ const createTeamModal = async ({
 				},
 				{
 					type: 'divider',
+				},
+				{
+					type: 'section',
+					text: {
+						type: 'mrkdwn',
+						text: '*Set reminder preferences*',
+					},
 				},
 				{
 					type: 'actions',

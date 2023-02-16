@@ -1,8 +1,64 @@
 import { Prisma, PrismaClient } from '@prisma/client'
+import dayjs from 'dayjs'
 import { uptime } from 'process'
 import app from '../client/slack'
 
 const prisma = new PrismaClient()
+
+interface OccurencyProps {
+	user_id: string
+	channel: string
+	postAt: string
+}
+
+const getOccurrenciesByTimezone = async ({
+	tzCode,
+}: {
+	tzCode: string
+}) => {
+	const teams = await prisma.team.findMany({
+		where: {
+			timezone: tzCode,
+		},
+		include: {
+			members: true,
+		},
+	})
+
+	let birthdays: OccurencyProps[] = []
+	let anniversaries: OccurencyProps[] = []
+
+	const today = dayjs()
+
+	teams.forEach(({ members, time, team_id }) => {
+		members.forEach((user) => {
+			if (user.isPrivate || !user.isEnabled) return
+
+			const formatBirthday = dayjs(user.birthday).format('MM-DD')
+			const formatAnniversary = dayjs(user.anniversary).format(
+				'MM-DD'
+			)
+
+			if (today.format('MM-DD') === formatBirthday) {
+				birthdays.push({
+					user_id: user.user_id,
+					channel: team_id,
+					postAt: time,
+				})
+			}
+
+			if (today.format('MM-DD') === formatAnniversary) {
+				anniversaries.push({
+					user_id: user.user_id,
+					channel: team_id,
+					postAt: time,
+				})
+			}
+		})
+	})
+
+	return { birthdays, anniversaries }
+}
 
 const addTeam = async ({
 	name,
@@ -239,4 +295,5 @@ export {
 	deleteTeam,
 	addUserToTeam,
 	removeUserFromTeam,
+	getOccurrenciesByTimezone,
 }

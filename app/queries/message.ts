@@ -6,6 +6,12 @@ import { GiphyFetch } from '@giphy/js-fetch-api'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
+import { getOccurrenciesByTimezone } from './team'
+import {
+	ChatScheduledMessagesListResponse,
+	ScheduledMessage,
+} from '@slack/web-api/dist/response/ChatScheduledMessagesListResponse'
+import { ChatScheduledMessagesListArguments } from '@slack/web-api'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -17,7 +23,75 @@ const birthdayMessagesFile = fs.readFileSync(
 
 const gf = new GiphyFetch('zFy2vQO9EeFZl7zZhomm1Z5zF5qQd1kz')
 
-const sendMessages = async () => {
+const sendMessagesByTimezone = async ({
+	tzCode,
+}: {
+	tzCode: string
+}) => {
+	const { birthdays, anniversaries } =
+		await getOccurrenciesByTimezone({ tzCode })
+
+	const birthdayMessages = yaml.parse(birthdayMessagesFile)
+
+	birthdays.forEach(async ({ channel, user_id, postAt }) => {
+		const hour = postAt.slice(0, 2)
+		const minute = postAt.slice(3, 5)
+
+		const post_at = dayjs()
+			.hour(parseInt(hour))
+			.minute(parseInt(minute))
+			.second(0)
+			.tz(tzCode)
+			.unix()
+
+		const { data: gif } = await gf.random({
+			tag: 'birthday',
+			type: 'gifs',
+		})
+
+		const message =
+			birthdayMessages[
+				Math.floor(Math.random() * birthdayMessages.length)
+			]
+
+		const text = message.replace('{mention}', `<@${user_id}>`)
+
+		await app.client.chat.scheduleMessage({
+			channel,
+			text: `Happy Birthday, <@${user_id}>!`,
+			post_at,
+			blocks: [
+				{
+					type: 'section',
+					text: { type: 'mrkdwn', text },
+				},
+				{
+					type: 'image',
+					image_url: gif.images.fixed_width.url,
+					alt_text: 'birthday',
+				},
+			],
+		})
+	})
+}
+
+const deleteScheduledMessages = async () => {
+	const messages: ChatScheduledMessagesListResponse =
+		await app.client.chat.scheduledMessages.list()
+
+	console.log(messages.scheduled_messages)
+
+	messages.scheduled_messages?.forEach(async ({ channel_id, id }) => {
+		await app.client.chat.deleteScheduledMessage({
+			channel: channel_id!,
+			scheduled_message_id: id!,
+		})
+	})
+
+	console.log(await app.client.chat.scheduledMessages.list())
+}
+
+const sendMessages = async ({ tzCode }: { tzCode: string }) => {
 	const { birthdays, anniversaries } = await getTodayOccurrencies()
 
 	const birthdayMessages = yaml.parse(birthdayMessagesFile)
@@ -26,20 +100,40 @@ const sendMessages = async () => {
 		channels.forEach(async ({ team_id, time, timezone }) => {
 			const hour = time.slice(0, 2)
 			const minute = time.slice(3, 5)
-			console.log(hour, minute)
+
+			const message =
+				birthdayMessages[
+					Math.floor(Math.random() * birthdayMessages.length)
+				]
+			const text = message.replace('{mention}', `<@${user_id}>`)
 
 			const post_at = dayjs()
-				.tz(timezone)
 				.hour(parseInt(hour))
 				.minute(parseInt(minute))
 				.second(0)
 				.add(1, 'day')
 				.unix()
 
+			const { data: gif } = await gf.random({
+				tag: 'birthday',
+				type: 'gifs',
+			})
+
 			await app.client.chat.scheduleMessage({
 				channel: team_id,
-				text: 'Buon compleanno fratm',
+				text: `Happy Birthday, <@${user_id}>!`,
 				post_at,
+				blocks: [
+					{
+						type: 'section',
+						text: { type: 'mrkdwn', text },
+					},
+					{
+						type: 'image',
+						image_url: gif.images.fixed_width.url,
+						alt_text: 'birthday',
+					},
+				],
 			})
 		})
 	})
@@ -149,4 +243,9 @@ const welcomeUser = async ({
 	})
 }
 
-export { sendMessages, welcomeUser }
+export {
+	sendMessages,
+	welcomeUser,
+	sendMessagesByTimezone,
+	deleteScheduledMessages,
+}

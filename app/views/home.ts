@@ -19,12 +19,18 @@ import {
 	deleteTeam,
 	editTeam,
 	getAllTeams,
+	getOccurrenciesByTimezone,
 	getTeam,
 	getUserTeams,
 	removeUserFromTeam,
 } from '../queries/team'
 import { KnownBlock } from '@slack/bolt'
-import { sendMessages, welcomeUser } from '../queries/message'
+import {
+	deleteScheduledMessages,
+	sendMessages,
+	sendMessagesByTimezone,
+	welcomeUser,
+} from '../queries/message'
 
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isSameOrBefore)
@@ -322,7 +328,16 @@ const testMessagesAction = () =>
 	app.action(
 		{ type: 'block_actions', action_id: 'test-messages' },
 		async ({ ack, body, action }: any) => {
-			await sendMessages()
+			await sendMessagesByTimezone({ tzCode: 'Europe/Berlin' })
+			await ack()
+		}
+	)
+
+const testDeleteAllAction = () =>
+	app.action(
+		{ type: 'block_actions', action_id: 'test-delete-all' },
+		async ({ ack, body, action }: any) => {
+			await deleteScheduledMessages()
 			await ack()
 		}
 	)
@@ -581,6 +596,15 @@ const generateHome = async ({ user_id }: { user_id: string }) => {
 							},
 							action_id: 'test-messages',
 						},
+						{
+							type: 'button',
+							text: {
+								type: 'plain_text',
+								text: 'Delete Scheduled Messages',
+								emoji: true,
+							},
+							action_id: 'test-delete-all',
+						},
 					],
 				},
 			],
@@ -608,6 +632,7 @@ const homeViewHandler = () => {
 	submitEditTeamAction()
 
 	testMessagesAction()
+	testDeleteAllAction()
 }
 
 export default homeViewHandler

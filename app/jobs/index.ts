@@ -1,13 +1,28 @@
+import { time } from 'console'
 import cron from 'node-cron'
-import { sendMessages } from '../queries/message'
+import {
+	sendMessages,
+	sendMessagesByTimezone,
+} from '../queries/message'
+
+import { minimalTimezoneSet } from '../utils/timezones'
+
+const midnight = '0 0 * * *' // 0 0 * * *
 
 const cronJobs = () => {
-	// cron.schedule('* * * * *', async () => {
-	// 	// 0 0 * * *
-	// 	// at midnight every day
-	// 	console.log('Midnight')
-	// 	await sendMessages()
-	// })
+	minimalTimezoneSet.forEach(({ tzCode }) => {
+		cron.schedule(
+			midnight,
+			async () => {
+				console.log('Running for timezone:', tzCode)
+				await sendMessagesByTimezone({ tzCode })
+			},
+			{
+				scheduled: true,
+				timezone: tzCode,
+			}
+		)
+	})
 }
 
 export default cronJobs
