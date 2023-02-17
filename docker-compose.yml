@@ -6,12 +6,36 @@ services:
     restart: always
     container_name: postgres
     environment:
-      - POSTGRES_USER=mozz
-      - POSTGRES_PASSWORD=M0zz@fr0g!!
+      POSTGRES_USER: mozz
+      POSTGRES_PASSWORD: M0zz@fr0g!!
+      POOSTGRES_DB: buddy
+    hostname: db
+    expose:
+      - 5432
     ports:
       - '5432:5432'
     volumes:
       - db:/var/lib/postgresql/data
+
+  app:
+    container_name: birthdaybuddy-node
+    build:
+      context: .
+      target: builder
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/birthdaybuddy
+      - /birthdaybuddy/node_modules
+    command: yarn start
+    depends_on:
+      - db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://mozz:M0zz@fr0g!!@db:5432/buddy?schema=public&sslmode=disable
+
 volumes:
   db:
     driver: local

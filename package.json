@@ -8,7 +8,7 @@
 		"build": "tsc -p .",
 		"build:watch": "tsc -w -p .",
 		"dev": "nodemon app/index.ts",
-		"start": "yarn build && node dist/app.js"
+		"start": "yarn build && node dist/index.js"
 	},
 	"devDependencies": {
 		"@types/node": "^18.11.18",
