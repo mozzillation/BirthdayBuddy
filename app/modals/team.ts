@@ -91,7 +91,7 @@ const createTeamModal = async ({
 					type: 'section',
 					text: {
 						type: 'mrkdwn',
-						text: '*Set reminder preferences*',
+						text: ':bell: *Set reminder preferences*',
 					},
 				},
 				{
@@ -99,7 +99,7 @@ const createTeamModal = async ({
 					elements: [
 						{
 							type: 'mrkdwn',
-							text: 'When do you want this team to receive good wishes?',
+							text: 'When do you want this team to receive announcements?',
 						},
 					],
 				},
@@ -223,7 +223,7 @@ const editTeamModal = async ({
 					elements: [
 						{
 							type: 'mrkdwn',
-							text: 'When do you want this team to receive good wishes?',
+							text: 'When do you want this team to receive announcements?',
 						},
 					],
 				},
