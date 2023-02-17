@@ -8,21 +8,21 @@ interface createTeamModalProps {
 	user_id: string
 }
 
+const formatTimezoneOptions: PlainTextOption[] =
+	minimalTimezoneSet.map(({ label, tzCode }, index) => {
+		return {
+			text: {
+				type: 'plain_text',
+				text: label,
+			},
+			value: tzCode,
+		}
+	})
+
 const createTeamModal = async ({
 	trigger_id,
 }: createTeamModalProps) => {
 	const alreadyCreatedTeams = await getAllTeams()
-
-	const formatTimezoneOptions: PlainTextOption[] =
-		minimalTimezoneSet.map(({ label, tzCode }, index) => {
-			return {
-				text: {
-					type: 'plain_text',
-					text: label,
-				},
-				value: tzCode,
-			}
-		})
 
 	await app.client.views.open({
 		trigger_id,
@@ -95,6 +95,15 @@ const createTeamModal = async ({
 					},
 				},
 				{
+					type: 'context',
+					elements: [
+						{
+							type: 'mrkdwn',
+							text: 'When do you want this team to receive good wishes?',
+						},
+					],
+				},
+				{
 					type: 'actions',
 					block_id: 'input-timezone',
 					elements: [
@@ -141,6 +150,10 @@ const editTeamModal = async ({
 }) => {
 	const team = await getTeam({ team_id })
 	if (!team) return
+
+	const timezoneData = minimalTimezoneSet.find(
+		(tz) => tz.tzCode === team.timezone
+	)
 
 	await app.client.views.open({
 		trigger_id,
@@ -202,19 +215,85 @@ const editTeamModal = async ({
 					type: 'section',
 					text: {
 						type: 'mrkdwn',
-						text: ':warning: *Dangerous Area* \n Do you want to remove this team? \n This action is irreversible. ',
+						text: ':bell: *Set reminder preferences*',
 					},
-					accessory: {
-						type: 'button',
-						text: {
-							type: 'plain_text',
-							text: 'Delete',
-							emoji: true,
+				},
+				{
+					type: 'context',
+					elements: [
+						{
+							type: 'mrkdwn',
+							text: 'When do you want this team to receive good wishes?',
 						},
-						style: 'danger',
-						value: team_id,
-						action_id: 'delete-team-action',
+					],
+				},
+				{
+					type: 'actions',
+					block_id: 'input-timezone',
+					elements: [
+						{
+							type: 'static_select',
+							placeholder: {
+								type: 'plain_text',
+								text: 'Select an item',
+								emoji: true,
+							},
+							initial_option: {
+								text: {
+									type: 'plain_text',
+									text: timezoneData!.label,
+								},
+								value: team.timezone,
+							},
+							options: formatTimezoneOptions,
+							action_id: 'update-timezone-action',
+						},
+						{
+							type: 'timepicker',
+							initial_time: team.time,
+							placeholder: {
+								type: 'plain_text',
+								text: 'Select time',
+								emoji: true,
+							},
+							action_id: 'update-time-action',
+						},
+					],
+				},
+				{
+					type: 'divider',
+				},
+				{
+					type: 'section',
+					text: {
+						type: 'mrkdwn',
+						text: ':warning: *Dangerous Area*',
 					},
+				},
+				{
+					type: 'context',
+					elements: [
+						{
+							type: 'mrkdwn',
+							text: 'Do you want to remove this team? This action is irreversible.',
+						},
+					],
+				},
+				{
+					type: 'actions',
+					elements: [
+						{
+							type: 'button',
+							text: {
+								type: 'plain_text',
+								text: 'Delete Team',
+								emoji: true,
+							},
+							style: 'danger',
+							value: team_id,
+							action_id: 'delete-team-action',
+						},
+					],
 				},
 			],
 		},

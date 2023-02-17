@@ -11,6 +11,10 @@ interface OccurencyProps {
 	postAt: string
 }
 
+interface AnniversaryProps extends OccurencyProps {
+	anniversary: string
+}
+
 const getOccurrenciesByTimezone = async ({
 	tzCode,
 }: {
@@ -26,7 +30,7 @@ const getOccurrenciesByTimezone = async ({
 	})
 
 	let birthdays: OccurencyProps[] = []
-	let anniversaries: OccurencyProps[] = []
+	let anniversaries: AnniversaryProps[] = []
 
 	const today = dayjs()
 
@@ -51,6 +55,7 @@ const getOccurrenciesByTimezone = async ({
 				anniversaries.push({
 					user_id: user.user_id,
 					channel: team_id,
+					anniversary: user.anniversary!,
 					postAt: time,
 				})
 			}
@@ -122,6 +127,8 @@ const editTeam = async ({
 	team_id,
 	user_id,
 	members,
+	time,
+	timezone,
 	previousTeam_id,
 }: {
 	previousTeam_id: string
@@ -129,6 +136,8 @@ const editTeam = async ({
 	team_id: string
 	user_id: string
 	members: string[]
+	time: string
+	timezone: string
 }) => {
 	const filterMembers = await getMembers({ members })
 
@@ -148,6 +157,8 @@ const editTeam = async ({
 	const team = {
 		name,
 		team_id,
+		timezone,
+		time,
 		createdBy: {
 			connect: {
 				user_id,

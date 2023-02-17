@@ -205,7 +205,6 @@ const submitCreateTeamAction = () => {
 			.selected_conversation as string
 		const user_id = body.user.id as string
 
-		console.log(view.state.values)
 		const timezone = view.state.values['input-timezone'][
 			'update-timezone-action'
 		].selected_option?.value as string
@@ -255,6 +254,12 @@ const submitEditTeamAction = () => {
 		const { members = [] } = await app.client.conversations.members({
 			channel: team_id,
 		})
+		const timezone = view.state.values['input-timezone'][
+			'update-timezone-action'
+		].selected_option?.value as string
+		const time = view.state.values['input-timezone'][
+			'update-time-action'
+		].selected_time as string
 
 		const checkIfTeamExists = await getTeam({ team_id })
 
@@ -275,6 +280,8 @@ const submitEditTeamAction = () => {
 			team_id,
 			user_id,
 			members,
+			timezone,
+			time,
 		})
 		await generateHome({ user_id })
 		await ack({ response_action: 'clear' })
