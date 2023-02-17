@@ -35,6 +35,7 @@ services:
       - .env
     environment:
       DATABASE_URL: postgresql://mozz:M0zz@fr0g!!@db:5432/buddy?schema=public&sslmode=disable
+      NODE_ENV: production
 
 volumes:
   db:
