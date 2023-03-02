@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client'
 import dayjs from 'dayjs'
+import { getUserTeams } from './team'
 
 const prisma = new PrismaClient()
 
@@ -10,12 +11,17 @@ const addUser = async ({
 	isPrivate,
 	isEnabled,
 }: Prisma.UserCreateInput) => {
+	const birthday_unix = dayjs(birthday).unix()
+	const anniversary_unix = dayjs(anniversary).unix()
+
 	const user = {
 		user_id,
 		birthday,
 		anniversary,
 		isPrivate,
 		isEnabled,
+		birthday_unix,
+		anniversary_unix,
 	}
 
 	await prisma.user
@@ -58,6 +64,19 @@ const getUser = async ({ user_id }: Prisma.UserCreateInput) => {
 			user.anniversary == null ? undefined : user.anniversary,
 		isPrivate: user.isPrivate == null ? false : user.isPrivate,
 	}
+}
+
+const getNextBirthdays = async ({ user_id }: { user_id: string }) => {
+	return await prisma.user.findMany({
+		where: {
+			isEnabled: true,
+			isPrivate: false,
+		},
+		orderBy: {
+			birthday_unix: 'asc',
+		},
+		take: 10,
+	})
 }
 
 const getTodayOccurrencies = async () => {
@@ -109,4 +128,4 @@ const getTodayOccurrencies = async () => {
 	}
 }
 
-export { addUser, getUser, getTodayOccurrencies }
+export { addUser, getUser, getTodayOccurrencies, getNextBirthdays }

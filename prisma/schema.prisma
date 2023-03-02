@@ -17,15 +17,17 @@ datasource db {
 // }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  user_id     String   @unique
-  anniversary String?
-  birthday    String?
-  isPrivate   Boolean? @default(false)
-  ownerOf     Team[]
-  memberOf    Team[]   @relation("Membership")
-  isEnabled   Boolean  @default(false)
-  isAdmin     Boolean  @default(false)
+  id               Int      @id @default(autoincrement())
+  user_id          String   @unique
+  anniversary      String?
+  anniversary_unix BigInt?
+  birthday         String?
+  birthday_unix    BigInt?
+  isPrivate        Boolean? @default(false)
+  ownerOf          Team[]
+  memberOf         Team[]   @relation("Membership")
+  isEnabled        Boolean  @default(false)
+  isAdmin          Boolean  @default(false)
 }
 
 model Team {

@@ -243,9 +243,41 @@ const welcomeUser = async ({
 	})
 }
 
+const sendIntro = async ({ team_id }: { team_id: string }) => {
+	await app.client.chat.postMessage({
+		channel: team_id,
+		text: `Ehi, <#${team_id}>. Birthday Buddy here!`,
+		blocks: [
+			{
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: `Hey <#${team_id}>! \n\nI have been given the best position in the company: CEO of celebrations! \n\nI keep the team informed about upcoming birthdays and when the special day arrives. \n\nI look forward to celebrating many birthdays and work anniversaries to come. \n\n If you want to join the party, here's a button for you :point_down:`,
+				},
+			},
+			{
+				type: 'actions',
+				elements: [
+					{
+						type: 'button',
+						text: {
+							type: 'plain_text',
+							text: ':tada: Share your special days',
+							emoji: true,
+						},
+						style: 'primary',
+						action_id: 'edit-profile-action',
+					},
+				],
+			},
+		],
+	})
+}
+
 export {
 	sendMessages,
 	welcomeUser,
+	sendIntro,
 	sendMessagesByTimezone,
 	deleteScheduledMessages,
 }

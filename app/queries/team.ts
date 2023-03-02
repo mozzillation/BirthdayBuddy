@@ -197,22 +197,16 @@ const getMembers = async ({ members }: { members: string[] }) => {
 }
 
 const getUserTeams = async ({ user_id }: { user_id: string }) => {
-	await prisma.team
-		.findMany({
-			where: {
-				createdBy: {
-					user_id,
-				},
+	return await prisma.team.findMany({
+		where: {
+			members: {
+				some: { user_id },
 			},
-		})
-		.then(async () => {
-			await prisma.$disconnect()
-		})
-		.catch(async (e) => {
-			console.error(e)
-			await prisma.$disconnect()
-			process.exit(1)
-		})
+		},
+		include: {
+			members: true,
+		},
+	})
 }
 
 const getAllTeams = async () => {

@@ -4,6 +4,7 @@ import app from '../client/slack'
 import { openProfileModal } from '../modals/profile'
 import {
 	addUser,
+	getNextBirthdays,
 	getTodayOccurrencies,
 	getUser,
 } from '../queries/user'
@@ -27,6 +28,7 @@ import {
 import { KnownBlock } from '@slack/bolt'
 import {
 	deleteScheduledMessages,
+	sendIntro,
 	sendMessages,
 	sendMessagesByTimezone,
 	welcomeUser,
@@ -237,6 +239,7 @@ const submitCreateTeamAction = () => {
 			time,
 			timezone,
 		})
+		await sendIntro({ team_id })
 		await generateHome({ user_id })
 		await ack({ response_action: 'clear' })
 	})
@@ -454,6 +457,45 @@ const generateHome = async ({ user_id }: { user_id: string }) => {
 		return
 	}
 
+	const handleAdmin = isAdmin
+		? [
+				{
+					type: 'header',
+					text: {
+						type: 'plain_text',
+						text: ':warning: Test',
+						emoji: true,
+					},
+				},
+				{
+					type: 'divider',
+				},
+				{
+					type: 'actions',
+					elements: [
+						{
+							type: 'button',
+							text: {
+								type: 'plain_text',
+								text: 'Send Messages',
+								emoji: true,
+							},
+							action_id: 'test-messages',
+						},
+						{
+							type: 'button',
+							text: {
+								type: 'plain_text',
+								text: 'Delete Scheduled Messages',
+								emoji: true,
+							},
+							action_id: 'test-delete-all',
+						},
+					],
+				},
+		  ]
+		: []
+
 	let formatBirthday = birthday && dayjs(birthday).format('MMMM DD')
 	let formatAnniversary =
 		anniversary && dayjs(anniversary).format('MMMM DD')
@@ -580,37 +622,16 @@ const generateHome = async ({ user_id }: { user_id: string }) => {
 						},
 					],
 				},
-				{
-					type: 'header',
-					text: {
-						type: 'plain_text',
-						text: ':warning: Test',
-						emoji: true,
-					},
-				},
+				...handleAdmin,
 				{
 					type: 'divider',
 				},
 				{
-					type: 'actions',
+					type: 'context',
 					elements: [
 						{
-							type: 'button',
-							text: {
-								type: 'plain_text',
-								text: 'Send Messages',
-								emoji: true,
-							},
-							action_id: 'test-messages',
-						},
-						{
-							type: 'button',
-							text: {
-								type: 'plain_text',
-								text: 'Delete Scheduled Messages',
-								emoji: true,
-							},
-							action_id: 'test-delete-all',
+							type: 'mrkdwn',
+							text: 'Coded with :heart: by Mozz',
 						},
 					],
 				},
