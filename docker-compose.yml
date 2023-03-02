@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_USER: mozz
       POSTGRES_PASSWORD: M0zz@fr0g!!
-      POOSTGRES_DB: buddy
+      POSTGRES_DB: buddy
     hostname: db
     expose:
       - 5432
@@ -27,7 +27,7 @@ services:
     volumes:
       - .:/birthdaybuddy
       - /birthdaybuddy/node_modules
-    command: yarn start
+    command: yarn start:migrate
     depends_on:
       - db
     restart: always
