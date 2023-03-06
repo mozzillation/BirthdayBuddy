@@ -9,7 +9,7 @@
 		"build:watch": "tsc -w -p .",
 		"dev": "nodemon app/index.ts",
 		"start": "yarn build && node dist/index.js",
-		"start:migrate" : "npx prisma migrate dev && npm start "
+		"start:migrate" : "yarn prisma migrate dev && yarn start"
 	},
 	"devDependencies": {
 		"@types/node": "^18.11.18",

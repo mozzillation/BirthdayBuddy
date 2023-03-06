@@ -5,11 +5,9 @@ services:
     image: postgres:14.1-alpine
     restart: always
     container_name: postgres
-    environment:
-      POSTGRES_USER: mozz
-      POSTGRES_PASSWORD: M0zz@fr0g!!
-      POSTGRES_DB: buddy
-    hostname: db
+    env_file:
+      - .env
+    hostname: ${POSTGRES_HOST}
     expose:
       - 5432
     ports:
@@ -33,9 +31,6 @@ services:
     restart: always
     env_file:
       - .env
-    environment:
-      DATABASE_URL: postgresql://mozz:M0zz@fr0g!!@db:5432/buddy?schema=public&sslmode=disable
-      NODE_ENV: production
 
 volumes:
   db:
